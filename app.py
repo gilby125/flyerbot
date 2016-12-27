@@ -48,8 +48,8 @@ def webhook():
                             d = feedparser.parse('http://feeds.feedburner.com/TheFlightDeal?format=xml')
                             for entry in d['entries']:
                                 if 'san francisco' in entry['title'].lower() or 'los angeles' in entry['title'].lower():
-                                    res = "%s\n%s\n%s\n" % (entry['title'], entry['feedburner_origlink'], entry['published'])
-                            if res == "":
+                                    res += "\n%s\n%s\n%s\n" % (entry['title'], entry['feedburner_origlink'], entry['published'])
+                            if res == u"":
                                 res = "<No results>"
                         except Exception as e:
                             res = "An error has occurred in parsing."
