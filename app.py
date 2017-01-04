@@ -32,8 +32,16 @@ def verify():
 
     return "Hello world", 200
 
-    # endpoint for processing incoming messaging events
 
+# endpoint for processing incoming PuSH feed events
+@app.route('/feed', methods=['POST'])
+def webhook_feed():
+    request.get_data()
+    log(request.data)
+
+    return "ok", 200
+
+# endpoint for processing incoming messaging events
 @app.route('/', methods=['POST'])
 def webhook():
 
