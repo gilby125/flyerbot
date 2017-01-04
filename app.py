@@ -5,12 +5,21 @@ import json
 
 import requests
 import string
+from time import mktime
+from datetime import datetime
 from flask import Flask, request
 
 import feedparser
 
 app = Flask(__name__)
 
+#util function to get the time of a post from now
+def get_time_from_now(struct_time):
+    dt = datetime.fromtimestamp(mktime(struct_time))
+    dif = datetime.utcnow() - dt
+    m, s = divmod(dif.days * 86400 + dif.seconds, 60)
+    h, m = divmod(m, 60)
+    return "%d hours %d minutes %s seconds ago" % (h, m, s)
 
 @app.route('/', methods=['GET'])
 def verify():
@@ -23,11 +32,10 @@ def verify():
 
     return "Hello world", 200
 
+    # endpoint for processing incoming messaging events
 
 @app.route('/', methods=['POST'])
 def webhook():
-
-    # endpoint for processing incoming messaging events
 
     data = request.get_json()
     log(data)  # you may not want to log every incoming message in production, but it's good for testing
@@ -43,18 +51,20 @@ def webhook():
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
                     if message_text == "flights":
-                        res = u""
+                        res = []
                         try:
                             d = feedparser.parse('http://feeds.feedburner.com/TheFlightDeal?format=xml')
                             for entry in d['entries']:
                                 if 'san francisco' in entry['title'].lower() or 'los angeles' in entry['title'].lower():
-                                    res += "\n%s\n%s\n%s\n" % (entry['title'], entry['feedburner_origlink'], entry['published'])
-                            if res == u"":
-                                res = "<No results>"
+                                    time_from_now = get_time_from_now(entry['published_parsed'])
+                                    res.append("\n%s\n%s\n%s\n" % (entry['title'], entry['feedburner_origlink'], time_from_now))
+                            if len(res) == 0:
+                                res = ["<No results>"]
                         except Exception as e:
-                            res = "An error has occurred in parsing."
+                            res = ["An error has occurred in parsing."]
                         #log(res)
-                        send_text(sender_id, res)
+                        for text in res:
+                            send_text(sender_id, text)
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
