@@ -37,8 +37,8 @@ def verify():
 @app.route('/feed', methods=['POST'])
 def webhook_feed():
     log("hello")
-    request.get_data()
-    log(request.data)
+    #request.get_data()
+    #log(request.data)
 
     return "ok", 200
 
