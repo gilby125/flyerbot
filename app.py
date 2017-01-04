@@ -36,6 +36,7 @@ def verify():
 # endpoint for processing incoming PuSH feed events
 @app.route('/feed', methods=['POST'])
 def webhook_feed():
+    log("hello")
     request.get_data()
     log(request.data)
 
