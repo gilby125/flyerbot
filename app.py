@@ -30,15 +30,26 @@ def verify():
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
-    return "Hello world", 200
+    return "Webhook main URL", 200
 
+# Register the webhook for RSS feed events
+@app.route('/feed', methods=['GET'])
+def verify_feed():
+    log("feed URL GET Request")
+    #request.get_data()
+    #log(request.data)
+    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
+        log(request.args["hub.challenge"])
+        return request.args["hub.challenge"], 200
+
+    return "Webhook feed URL", 200
 
 # endpoint for processing incoming PuSH feed events
 @app.route('/feed', methods=['POST'])
 def webhook_feed():
     log("hello")
-    #request.get_data()
-    #log(request.data)
+    request.get_data()
+    log(request.data)
 
     return "ok", 200
 
