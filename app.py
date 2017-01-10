@@ -10,8 +10,11 @@ from datetime import datetime
 from flask import Flask, request
 
 import feedparser
+import xmltodict
 
 app = Flask(__name__)
+
+RECEIPT_IDS = ['1223031921065582']
 
 #util function to get the time of a post from now
 def get_time_from_now(struct_time):
@@ -47,9 +50,19 @@ def verify_feed():
 # endpoint for processing incoming PuSH feed events
 @app.route('/feed', methods=['POST'])
 def webhook_feed():
-    log("hello")
+    log("FlightDeals POST")
     request.get_data()
-    log(request.data)
+    raw_xml = request.data
+    try:
+        entry = xmltodict.parse(raw_xml.strip())['rss']['channel']['item']
+        if 'san francisco' in entry['title'].lower():# or 'los angeles' in entry['title'].lower():
+            res = "\n%s\n%s\n" % (entry['title'], entry['feedburner:origlink'])
+            for rec_id in RECEIPT_IDS:
+                send_text(rec_id, res)
+    except Exception as e:
+        res = "RSS Push: An error has occurred in parsing real time XML"
+        for rec_id in RECEIPT_IDS:
+            send_text(rec_id, res)
 
     return "ok", 200
 
