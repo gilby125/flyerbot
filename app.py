@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import sys
 import json
+import traceback
 
 import requests
 import string
@@ -56,13 +57,14 @@ def webhook_feed():
     try:
         entry = xmltodict.parse(raw_xml.strip())['rss']['channel']['item']
         if 'san francisco' in entry['title'].lower():# or 'los angeles' in entry['title'].lower():
-            res = "\n%s\n%s\n" % (entry['title'], entry['feedburner:origlink'])
+            res = "\n%s\n%s\n" % (entry['title'], entry['feedburner:origLink'])
             for rec_id in RECEIPT_IDS:
                 send_text(rec_id, res)
     except Exception as e:
         res = "RSS Push: An error has occurred in parsing real time XML"
         for rec_id in RECEIPT_IDS:
             send_text(rec_id, res)
+        traceback.print_exc()
 
     return "ok", 200
 
