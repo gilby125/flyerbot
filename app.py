@@ -54,6 +54,7 @@ def webhook_feed():
     log("FlightDeals POST")
     request.get_data()
     raw_xml = request.data
+    log(raw_xml)
     try:
         entry = xmltodict.parse(raw_xml.strip())['rss']['channel']['item']
         if 'san francisco' in entry['title'].lower():# or 'los angeles' in entry['title'].lower():
