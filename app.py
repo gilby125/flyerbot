@@ -56,7 +56,10 @@ def webhook_feed():
     raw_xml = request.data
     log(raw_xml)
     try:
-        entry = xmltodict.parse(raw_xml.strip())['rss']['channel']['item']
+        xml = xmltodict.parse(raw_xml.strip())
+        if 'rss' not in xml:
+            return "not rss", 200
+        entry = xml['rss']['channel']['item']
         if 'san francisco' in entry['title'].lower():# or 'los angeles' in entry['title'].lower():
             res = "\n%s\n%s\n" % (entry['title'], entry['feedburner:origLink'])
             for rec_id in RECEIPT_IDS:
